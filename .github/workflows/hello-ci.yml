@@ -10,3 +10,5 @@ jobs:
         run: echo "Привет, Дима! Все опечатки исправлены, летим!"
       - name: Check files list
         run: ls -la
+        run: echo "VC code в деле"
+        
