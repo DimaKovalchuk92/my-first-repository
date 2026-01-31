@@ -1,10 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-        <title>мой первый проект CI/CD</title>
+    <title>Мой анимированный сайт</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+        }
+        .emoji {
+            font-size: 100px;
+            cursor: pointer;
+        }
+        /* Анимация подмигивания */
+        @keyframes wink {
+            0%, 100% { content: "😉"; }
+            50% { content: "🙂"; }
+        }
+        .emoji::after {
+            content: "😉";
+            animation: wink 2s infinite;
+        }
+    </style>
 </head>
 <body>
-    <h1>привет, этот сайт создан через git and VC code</h1>
-    <p>если ты это видишь, значит файли успешно улетели на сервер </p>
+    <h1>Ура! Мой CI/CD работает!</h1>
+    <div class="emoji"></div>
+    <p>Смайлик подмигивает сам по себе каждые 2 секунды.</p>
 </body>
 </html>
