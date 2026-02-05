@@ -293,6 +293,15 @@
             z-index: 1000;
             overflow: hidden;
         }
+        #fireworksCanvas {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1200;
+        }
         .particle {
             position: absolute;
             font-size: 12px;
@@ -367,6 +376,7 @@
     </div>
 
     <div class="particles-container" id="particlesContainer"></div>
+    <canvas id="fireworksCanvas"></canvas>
 
     <script>
         const particlesContainer = document.getElementById('particlesContainer');
@@ -476,6 +486,8 @@
             for (let i = 0; i < 50; i++) {
                 createParticle();
             }
+            triggerFireworks(6);
+            playExplosionSound();
         });
 
         function createParticle() {
@@ -496,6 +508,116 @@
 
             particlesContainer.appendChild(particle);
             setTimeout(() => particle.remove(), 4000);
+        }
+
+        // ---- Fireworks (салют) на canvas + звук (WebAudio) ----
+        const fwCanvas = document.getElementById('fireworksCanvas');
+        const fwCtx = fwCanvas.getContext('2d');
+        function resizeFW() { fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight; }
+        resizeFW();
+        window.addEventListener('resize', resizeFW);
+
+        let rockets = [];
+        let fwParticles = [];
+
+        function triggerFireworks(count = 5) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(createRocket, i * 220 + Math.random() * 200);
+            }
+        }
+
+        function createRocket() {
+            const x = Math.random() * fwCanvas.width;
+            const y = fwCanvas.height + 10;
+            rockets.push({
+                x,
+                y,
+                vx: (Math.random() - 0.5) * 3,
+                vy: -(6 + Math.random() * 8),
+                color: colors[Math.floor(Math.random() * colors.length)],
+                ttl: 0
+            });
+        }
+
+        function explode(rx, ry, color) {
+            const n = 24 + Math.floor(Math.random() * 36);
+            for (let i = 0; i < n; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 5;
+                fwParticles.push({
+                    x: rx,
+                    y: ry,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 0,
+                    color
+                });
+            }
+        }
+
+        function updateAndDrawFW() {
+            fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+            fwCtx.globalCompositeOperation = 'lighter';
+
+            for (let i = rockets.length - 1; i >= 0; i--) {
+                const r = rockets[i];
+                r.x += r.vx; r.y += r.vy; r.vy += 0.12; r.ttl++;
+                fwCtx.fillStyle = r.color;
+                fwCtx.beginPath(); fwCtx.arc(r.x, r.y, 2.5, 0, Math.PI * 2); fwCtx.fill();
+                if (r.vy > -1 || r.ttl > 80) {
+                    explode(r.x, r.y, r.color);
+                    rockets.splice(i, 1);
+                }
+            }
+
+            for (let i = fwParticles.length - 1; i >= 0; i--) {
+                const p = fwParticles[i];
+                p.vy += 0.06;
+                p.x += p.vx; p.y += p.vy; p.life++;
+                const alpha = Math.max(1 - p.life / 80, 0);
+                fwCtx.globalAlpha = alpha;
+                fwCtx.fillStyle = p.color;
+                fwCtx.beginPath(); fwCtx.arc(p.x, p.y, 2 + (1 - alpha) * 2, 0, Math.PI * 2); fwCtx.fill();
+                fwCtx.globalAlpha = 1;
+                if (p.life > 90) fwParticles.splice(i, 1);
+            }
+
+            requestAnimationFrame(updateAndDrawFW);
+        }
+
+        requestAnimationFrame(updateAndDrawFW);
+
+        function playExplosionSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const now = audioCtx.currentTime;
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(120, now);
+                o.frequency.exponentialRampToValueAtTime(40, now + 0.5);
+                g.gain.setValueAtTime(0.0001, now);
+                g.gain.exponentialRampToValueAtTime(1, now + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(now); o.stop(now + 1.2);
+
+                const bufferSize = audioCtx.sampleRate * 0.6;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-3 * i / bufferSize);
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                const ng = audioCtx.createGain();
+                ng.gain.setValueAtTime(1, now);
+                ng.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                noise.connect(ng); ng.connect(audioCtx.destination);
+                noise.start(now); noise.stop(now + 0.6);
+            } catch (e) {
+                console.warn('AudioContext error', e);
+            }
         }
     </script>
 </body>
