@@ -11,10 +11,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding-top: 80px;
+            padding: 40px 0 40px;
             gap: 16px;
             background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -145,8 +145,10 @@
         .side-menu a:hover::after {
             width: 100%;
         }
-        /* Модальное окно контактов */
-        .contacts-modal-backdrop {
+        /* Модальные окна */
+        .contacts-modal-backdrop,
+        .about-modal-backdrop,
+        .skills-modal-backdrop {
             position: fixed;
             inset: 0;
             display: flex;
@@ -160,11 +162,15 @@
             transition: opacity 0.25s ease, visibility 0.25s ease;
             z-index: 1200;
         }
-        .contacts-modal-backdrop.open {
+        .contacts-modal-backdrop.open,
+        .about-modal-backdrop.open,
+        .skills-modal-backdrop.open {
             opacity: 1;
             visibility: visible;
         }
-        .contacts-modal {
+        .contacts-modal,
+        .about-modal,
+        .skills-modal {
             background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.1), rgba(10, 5, 40, 0.96));
             border-radius: 24px;
             padding: 24px 28px 20px;
@@ -173,12 +179,25 @@
             box-shadow: 0 18px 60px rgba(0, 0, 0, 0.75);
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.12);
+            transform: translateY(12px) scale(0.96);
+            opacity: 0;
+            transition: transform 0.25s ease, opacity 0.25s ease;
         }
-        .contacts-modal h2 {
+        .contacts-modal-backdrop.open .contacts-modal,
+        .about-modal-backdrop.open .about-modal,
+        .skills-modal-backdrop.open .skills-modal {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+        .contacts-modal h2,
+        .about-modal h2,
+        .skills-modal h2 {
             margin: 0 0 12px;
             font-size: 22px;
         }
-        .contacts-modal p {
+        .contacts-modal p,
+        .about-modal p,
+        .skills-modal p {
             margin: 0 0 18px;
             font-size: 14px;
             opacity: 0.9;
@@ -209,7 +228,8 @@
             background: rgba(255, 255, 255, 0.16);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
         }
-        .contacts-close-btn {
+        .contacts-close-btn,
+        .modal-close-btn {
             margin-top: 4px;
             padding: 8px 18px;
             border-radius: 999px;
@@ -222,12 +242,14 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
             transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
         }
-        .contacts-close-btn:hover {
+        .contacts-close-btn:hover,
+        .modal-close-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
             background: #ffffff;
         }
-        .contacts-close-btn:active {
+        .contacts-close-btn:active,
+        .modal-close-btn:active {
             transform: translateY(0);
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
         }
@@ -321,6 +343,22 @@
         </div>
     </div>
 
+    <div class="about-modal-backdrop" id="aboutModal">
+        <div class="about-modal">
+            <h2>Обо мне</h2>
+            <p>Дима Ковальчук</p>
+            <button class="modal-close-btn" id="aboutModalClose">Закрыть</button>
+        </div>
+    </div>
+
+    <div class="skills-modal-backdrop" id="skillsModal">
+        <div class="skills-modal">
+            <h2>Навыки</h2>
+            <p>изучаю CI/CD by GIT, Cursor and VS Code</p>
+            <button class="modal-close-btn" id="skillsModalClose">Закрыть</button>
+        </div>
+    </div>
+
     <div class="particles-container" id="particlesContainer"></div>
 
     <script>
@@ -333,6 +371,12 @@
         const contactsModal = document.getElementById('contactsModal');
         const contactsModalClose = document.getElementById('contactsModalClose');
         const contactsLink = sideMenu.querySelector('a[href="#contacts"]');
+        const aboutModal = document.getElementById('aboutModal');
+        const aboutModalClose = document.getElementById('aboutModalClose');
+        const aboutLink = sideMenu.querySelector('a[href="#about"]');
+        const skillsModal = document.getElementById('skillsModal');
+        const skillsModalClose = document.getElementById('skillsModalClose');
+        const skillsLink = sideMenu.querySelector('a[href="#skills"]');
 
         burger.addEventListener('click', () => {
             burger.classList.toggle('open');
@@ -354,6 +398,22 @@
             contactsModal.classList.remove('open');
         }
 
+        function openAboutModal() {
+            aboutModal.classList.add('open');
+        }
+
+        function closeAboutModal() {
+            aboutModal.classList.remove('open');
+        }
+
+        function openSkillsModal() {
+            skillsModal.classList.add('open');
+        }
+
+        function closeSkillsModal() {
+            skillsModal.classList.remove('open');
+        }
+
         if (contactsLink) {
             contactsLink.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -361,13 +421,47 @@
             });
         }
 
+        if (aboutLink) {
+            aboutLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                openAboutModal();
+            });
+        }
+
+        if (skillsLink) {
+            skillsLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                openSkillsModal();
+            });
+        }
+
         contactsModalClose.addEventListener('click', () => {
             closeContactsModal();
+        });
+
+        aboutModalClose.addEventListener('click', () => {
+            closeAboutModal();
+        });
+
+        skillsModalClose.addEventListener('click', () => {
+            closeSkillsModal();
         });
 
         contactsModal.addEventListener('click', (event) => {
             if (event.target === contactsModal) {
                 closeContactsModal();
+            }
+        });
+
+        aboutModal.addEventListener('click', (event) => {
+            if (event.target === aboutModal) {
+                closeAboutModal();
+            }
+        });
+
+        skillsModal.addEventListener('click', (event) => {
+            if (event.target === skillsModal) {
+                closeSkillsModal();
             }
         });
 
