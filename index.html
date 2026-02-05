@@ -145,6 +145,92 @@
         .side-menu a:hover::after {
             width: 100%;
         }
+        /* Модальное окно контактов */
+        .contacts-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 3, 24, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            z-index: 1200;
+        }
+        .contacts-modal-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .contacts-modal {
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.1), rgba(10, 5, 40, 0.96));
+            border-radius: 24px;
+            padding: 24px 28px 20px;
+            max-width: 360px;
+            width: calc(100% - 48px);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.75);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .contacts-modal h2 {
+            margin: 0 0 12px;
+            font-size: 22px;
+        }
+        .contacts-modal p {
+            margin: 0 0 18px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .contacts-icons {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+        .contacts-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            font-size: 22px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+        .contacts-icon:hover {
+            transform: translateY(-2px) scale(1.03);
+            background: rgba(255, 255, 255, 0.16);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+        .contacts-close-btn {
+            margin-top: 4px;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: none;
+            background: rgba(255, 255, 255, 0.95);
+            color: #3b2f8f;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+        .contacts-close-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+            background: #ffffff;
+        }
+        .contacts-close-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+        }
         /* Кнопка частиц */
         .particle-btn {
             margin-top: 24px;
@@ -234,6 +320,22 @@
         <p>Например: почта, Telegram, GitHub или любые другие удобные способы связи.</p>
     </section>
 
+    <div class="contacts-modal-backdrop" id="contactsModal">
+        <div class="contacts-modal">
+            <h2>Свяжитесь со мной</h2>
+            <p>Выберите удобный способ связи — я буду рад вашему сообщению.</p>
+            <div class="contacts-icons">
+                <a class="contacts-icon" href="https://t.me/your_telegram" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+                    &#128227;
+                </a>
+                <a class="contacts-icon" href="mailto:you@example.com" aria-label="Email">
+                    &#9993;
+                </a>
+            </div>
+            <button class="contacts-close-btn" id="contactsModalClose">Закрыть</button>
+        </div>
+    </div>
+
     <div class="particles-container" id="particlesContainer"></div>
 
     <script>
@@ -243,6 +345,9 @@
 
         const burger = document.getElementById('burger');
         const sideMenu = document.getElementById('sideMenu');
+        const contactsModal = document.getElementById('contactsModal');
+        const contactsModalClose = document.getElementById('contactsModalClose');
+        const contactsLink = sideMenu.querySelector('a[href="#contacts"]');
 
         burger.addEventListener('click', () => {
             burger.classList.toggle('open');
@@ -254,6 +359,31 @@
                 burger.classList.remove('open');
                 sideMenu.classList.remove('open');
             });
+        });
+
+        function openContactsModal() {
+            contactsModal.classList.add('open');
+        }
+
+        function closeContactsModal() {
+            contactsModal.classList.remove('open');
+        }
+
+        if (contactsLink) {
+            contactsLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                openContactsModal();
+            });
+        }
+
+        contactsModalClose.addEventListener('click', () => {
+            closeContactsModal();
+        });
+
+        contactsModal.addEventListener('click', (event) => {
+            if (event.target === contactsModal) {
+                closeContactsModal();
+            }
         });
 
         document.querySelector('.particle-btn').addEventListener('click', () => {
